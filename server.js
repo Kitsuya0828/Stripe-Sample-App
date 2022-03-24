@@ -4,10 +4,10 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 4242
-app.use(express.static('public'))
-  .use(express.static(path.join(__dirname, 'public')))
-  .get('/', (req, res) => res.sendFile('/checkout.html'))
 
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html");
+});
 
 const YOUR_DOMAIN = 'http://localhost:4242';
 
