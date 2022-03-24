@@ -1,31 +1,33 @@
-// This is your test secret API key.
-const stripe = require('stripe')('sk_test_51KgpwYBEyNZnNN6yYGm63UuXMDbO7Piq7ngTlxGCtflcnoGlmCjAtP1y8VqKNH3e72hfZMuIMB02Mnvg3ICUVffQ00pyUmoWg3');
-const express = require('express');
-const path = require('path');
+const express = require("express");
 const app = express();
+// This is your test secret API key.
+const stripe = require("stripe")('sk_test_51KgpwYBEyNZnNN6yYGm63UuXMDbO7Piq7ngTlxGCtflcnoGlmCjAtP1y8VqKNH3e72hfZMuIMB02Mnvg3ICUVffQ00pyUmoWg3');
 
-app.use("/", (req, res) => {
-  res.sendFile("/index.html", {root:__dirname});
-});
+app.use(express.static("public"));
+app.use(express.json());
 
-const YOUR_DOMAIN = 'http://localhost:4242';
+const calculateOrderAmount = (items) => {
+  // Replace this constant with a calculation of the order's amount
+  // Calculate the order total on the server to prevent
+  // people from directly manipulating the amount on the client
+  return 1400;
+};
 
-app.post('/create-checkout-session', async (req, res) => {
-  const session = await stripe.checkout.sessions.create({
-    line_items: [
-      {
-        // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-        price: 'price_1KgrwGBEyNZnNN6ytMnQSYuT',
-        quantity: 1,
-      },
-    ],
-    mode: 'payment',
-    success_url: `https://azumaru-stripe.herokuapp.com/success.html`,
-    cancel_url: `https://azumaru-stripe.herokuapp.com/cancel.html`,
+app.post("/create-payment-intent", async (req, res) => {
+  const { items } = req.body;
+
+  // Create a PaymentIntent with the order amount and currency
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: calculateOrderAmount(items),
+    currency: "eur",
+    automatic_payment_methods: {
+      enabled: true,
+    },
   });
 
-  res.redirect(303, session.url);
+  res.send({
+    clientSecret: paymentIntent.client_secret,
+  });
 });
 
-const PORT = process.env.PORT || 4242
-app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
+app.listen(process.env.PORT || 4242, () => console.log("Node server listening on port 4242!"));
