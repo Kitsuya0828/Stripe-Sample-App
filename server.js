@@ -3,10 +3,10 @@ const stripe = require('stripe')('sk_test_51KgpwYBEyNZnNN6yYGm63UuXMDbO7Piq7ngTl
 const express = require('express');
 const path = require('path');
 
-const app = express(path.join(__dirname, 'public'));
+const app = express();
 const PORT = process.env.PORT || 4242
 
-app.set(express.static(path))
+app.set(express.static(path.join(__dirname, 'public')))
   .get("/", (req, res) => {res.sendFile(__dirname + "/index.html");});
 
 const YOUR_DOMAIN = 'http://localhost:4242';
