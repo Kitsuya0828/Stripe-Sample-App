@@ -2,12 +2,16 @@
 const stripe = require('stripe')('sk_test_51KgpwYBEyNZnNN6yYGm63UuXMDbO7Piq7ngTlxGCtflcnoGlmCjAtP1y8VqKNH3e72hfZMuIMB02Mnvg3ICUVffQ00pyUmoWg3');
 const express = require('express');
 const path = require('path');
-
 const app = express();
-const PORT = process.env.PORT || 4242
 
-app.set(express.static(path.join(__dirname, 'public')))
-  .get("/", (req, res) => {res.sendFile(__dirname + "/index.html");});
+const http = require("http");
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
+
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + "/index.html");
+});
 
 const YOUR_DOMAIN = 'http://localhost:4242';
 
@@ -21,11 +25,12 @@ app.post('/create-checkout-session', async (req, res) => {
       },
     ],
     mode: 'payment',
-    success_url: `https://azumaru-stripe.herokuapp.com/public/success.html`,
-    cancel_url: `https://azumaru-stripe.herokuapp.com/public/cancel.html`,
+    success_url: `https://azumaru-stripe.herokuapp.com/success.html`,
+    cancel_url: `https://azumaru-stripe.herokuapp.com/cancel.html`,
   });
 
   res.redirect(303, session.url);
 });
 
+const PORT = process.env.PORT || 4242
 app.listen(PORT, () => console.log(`Listening on ${ PORT }`));
